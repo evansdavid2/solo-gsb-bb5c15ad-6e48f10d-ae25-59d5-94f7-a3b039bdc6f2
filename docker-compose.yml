@@ -1,0 +1,11 @@
+services:
+  audit:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"   # 默认仅本机访问
+    volumes:
+      - audit-data:/srv/data    # SQLite 数据持久化
+    restart: unless-stopped
+
+volumes:
+  audit-data:

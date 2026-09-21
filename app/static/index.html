@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>博物馆展品光照剂量审计</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>🏛️ 展品光照剂量审计</h1>
+  <div class="header-actions">
+    <button id="btn-demo" class="secondary">载入演示数据</button>
+    <button id="btn-export" disabled>导出审计 JSON</button>
+  </div>
+</header>
+
+<main>
+  <!-- 展柜管理 -->
+  <section class="card">
+    <h2>① 展柜与照度数据</h2>
+    <div class="row">
+      <input id="case-name" placeholder="新展柜名称,如:A 柜 · 书画厅">
+      <button id="btn-add-case">添加展柜</button>
+    </div>
+    <table id="cases-table">
+      <thead><tr>
+        <th>ID</th><th>名称</th><th>读数</th><th>数据范围</th>
+        <th>平均日剂量 (lux·h)</th><th>上传 JSONL</th><th></th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+    <p class="hint">JSONL 每行一条:<code>{"ts":"2026-01-01T08:00:00Z","lux":152.3}</code></p>
+  </section>
+
+  <!-- 展品与在柜时间段 -->
+  <section class="card">
+    <h2>② 展品与在柜时间段</h2>
+    <div class="row">
+      <input id="ex-name" placeholder="展品名称">
+      <input id="ex-material" placeholder="材质,如:绢本彩绘">
+      <input id="ex-limit" type="number" value="50000" min="1" step="1000" title="年度剂量上限 (lux·h)">
+      <button id="btn-add-exhibit">添加展品</button>
+    </div>
+    <div class="row">
+      <select id="pl-exhibit"></select>
+      <select id="pl-case"></select>
+      <label>开始 <input id="pl-start" type="datetime-local"></label>
+      <label>结束 <input id="pl-end" type="datetime-local"></label>
+      <label class="chk"><input id="pl-ongoing" type="checkbox" checked> 至今在柜</label>
+      <button id="btn-add-placement">添加在柜段</button>
+    </div>
+    <table id="exhibits-table">
+      <thead><tr><th>ID</th><th>名称</th><th>材质</th><th>年上限 (lux·h)</th><th>在柜段数</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- 审计 -->
+  <section class="card">
+    <h2>③ 剂量审计</h2>
+    <div class="row">
+      <select id="audit-exhibit"></select>
+      <label>断点阈值(小时) <input id="gap-hours" type="number" value="6" min="0.5" step="0.5" style="width:5em"></label>
+      <button id="btn-audit">运行审计</button>
+    </div>
+    <div id="audit-summary" class="summary"></div>
+    <div class="panels">
+      <div class="panel">
+        <h3>累计剂量曲线</h3>
+        <canvas id="dose-chart" width="860" height="360"></canvas>
+        <p class="hint">红色区段 = 跨断点区间(相邻读数间隔超过阈值,仍按梯形积分计入)</p>
+      </div>
+      <div class="panel">
+        <h3>断点证据</h3>
+        <div class="scroll">
+          <table id="gaps-table">
+            <thead><tr><th>展柜</th><th>区间开始</th><th>区间结束</th><th>时长(h)</th><th>剂量(lux·h)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 轮换模拟 -->
+  <section class="card">
+    <h2>④ 轮换模拟:移入另一展柜</h2>
+    <div class="row">
+      <select id="sim-target"></select>
+      <button id="btn-simulate" disabled>模拟轮换</button>
+    </div>
+    <div id="sim-result"></div>
+  </section>
+</main>
+
+<div id="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
